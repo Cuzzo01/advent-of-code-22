@@ -9,19 +9,15 @@ for (const line of lines) {
   trees.push(lineArr);
 }
 
-const FindViewingDistance = ([x,y]) => {
-
-}
+const FindViewingDistance = ([x, y]) => {};
 
 const FindTreeScenicScore = ([x, y]) => {
-  const treeHight = trees[x][y]
+  const treeHight = trees[x][y];
 
   // down
-  for (let offset = 0; trees[x+offset][y] < treeHight; offset++)
-}
+  // for (let offset = 0; trees[x+offset][y] < treeHight; offset++)
+};
 
 for (let x = 0; x < trees.length; x++) {
-  for (let y = 0; y < trees[x].length; y++) {
-
-  }
+  for (let y = 0; y < trees[x].length; y++) {}
 }
