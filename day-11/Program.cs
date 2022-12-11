@@ -15,9 +15,9 @@
         return;
       }
 
-      var solver = new Solver(input);
-      Console.WriteLine($"Answer to part 1 is: {solver.Part1()}");
-      // Console.WriteLine($"Answer to part 2 is: {solver.Part2(input)}");
+      var solver = new Solver();
+      Console.WriteLine($"Answer to part 1 is: {solver.Part1(input)}");
+      Console.WriteLine($"Answer to part 2 is: {solver.Part2(input)}");
     }
   }
 }

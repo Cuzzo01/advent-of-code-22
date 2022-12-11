@@ -5,13 +5,11 @@ namespace AoCTemplate
   class Solver
   {
     private Dictionary<int, Monkey> Monkeys = new Dictionary<int, Monkey>();
-    public Solver(string input)
-    {
-      ParseInput(input);
-    }
 
-    public string Part1()
+    public string Part1(string input)
     {
+      ParseInput(input, true);
+
       for (var round = 1; round <= 20; round++)
       {
         for (var i = 0; i < Monkeys.Count; i++)
@@ -22,10 +20,7 @@ namespace AoCTemplate
             Monkeys[result.Index].Items.Add(result.Item);
           }
         }
-        PrintMonkeys(round);
       }
-
-      PrintInspectionCounts();
 
       var inspectionCountList = Monkeys.Select((x) => (x.Value.InspectionCount)).ToList();
       inspectionCountList.Sort((a, b) => b - a);
@@ -34,7 +29,23 @@ namespace AoCTemplate
 
     public string Part2(string input)
     {
-      return "Not Implemented";
+      ParseInput(input, false);
+
+      for (var round = 1; round <= 10000; round++)
+      {
+        for (var i = 0; i < Monkeys.Count; i++)
+        {
+          var resultItems = Monkeys[i].ProcessTurn();
+          foreach (var result in resultItems)
+          {
+            Monkeys[result.Index].Items.Add(result.Item);
+          }
+        }
+      }
+
+      var inspectionCountList = Monkeys.Select((x) => (x.Value.InspectionCount)).ToList();
+      inspectionCountList.Sort((a, b) => b - a);
+      return ((long)inspectionCountList[0] * inspectionCountList[1]).ToString();
     }
 
     private void PrintMonkeys(int round)
@@ -56,9 +67,10 @@ namespace AoCTemplate
       }
     }
 
-    private void ParseInput(string input, bool divideByThree = false)
+    private void ParseInput(string input, bool divideByThree = true)
     {
       Monkeys = new Dictionary<int, Monkey>();
+      var testValues = new List<int>();
       var lines = input.Split("\n").ToList();
       var monkeyStarts = Enumerable.Range(0, lines.Count).Where(i => lines[i].Contains("Monkey")).ToList();
       foreach (var firstIndex in monkeyStarts)
@@ -82,8 +94,8 @@ namespace AoCTemplate
         var operationValue = operationLine[5];
         var selfOperation = false;
         if (operationValue == "old") selfOperation = true;
-        Func<int, int> operationFunc;
-        Func<int, int> operationBase = (input) => (input / 3);
+        Func<BigInteger, BigInteger> operationFunc;
+        Func<BigInteger, BigInteger> operationBase = divideByThree ? (input) => (input / 3) : input => input;
         switch (operationChar)
         {
           case "*":
@@ -99,7 +111,8 @@ namespace AoCTemplate
 
         var testLine = lines[firstIndex + 3].Trim().Split(" ");
         var testValue = int.Parse(testLine[3]);
-        Func<int, bool> testFunc = (input) => input % testValue == 0;
+        Func<BigInteger, bool> testFunc = (input) => input % testValue == 0;
+        testValues.Add(testValue);
 
         var trueMonkeyIndex = int.Parse(lines[firstIndex + 4].Trim().Split(" ")[5]);
         var falseMonkeyIndex = int.Parse(lines[firstIndex + 5].Trim().Split(" ")[5]);
@@ -110,9 +123,37 @@ namespace AoCTemplate
           InspectionOperation = operationFunc,
           TestOperation = testFunc,
           FalseMonkey = falseMonkeyIndex,
-          TrueMonkey = trueMonkeyIndex
+          TrueMonkey = trueMonkeyIndex,
         });
       }
+
+      var commonMultiple = GFG.LcmOfArray(testValues.ToArray(), 0);
+      foreach (var monkey in Monkeys)
+      {
+        monkey.Value.commonMultiple = commonMultiple;
+      }
+    }
+  }
+
+  // from https://www.geeksforgeeks.org/lcm-of-given-array-elements/
+  public static class GFG
+  {
+    private static int __gcd(int a, int b)
+    {
+      if (a == 0)
+        return b;
+      return __gcd(b % a, a);
+    }
+
+    public static int LcmOfArray(int[] arr, int idx)
+    {
+      if (idx == arr.Length - 1)
+      {
+        return arr[idx];
+      }
+      int a = arr[idx];
+      int b = LcmOfArray(arr, idx + 1);
+      return (a * b / __gcd(a, b));
     }
   }
 }
